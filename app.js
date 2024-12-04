@@ -11,9 +11,7 @@ app.use(cors({
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.net/?retryWrites=true&w=majority&appName=plant', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect('mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.net/plantDB?retryWrites=true&w=majority', {
 }).then(() => {
   console.log('Connected to MongoDB');
 }).catch((err) => {
@@ -97,14 +95,14 @@ app.get('/api/plants', async (req, res) => {
 // Get a specific plant by name
 app.get('/api/plants/:name', async (req, res) => {
   try {
-    const plantName = req.params.name; // Extract the plant name from the URL parameter
-    const plant = await Plant.findOne({ name: plantName }); // Search for a plant by name
+    const plant = await Plant.findOne({ name: req.params.name });
     if (!plant) {
       return res.status(404).json({ message: 'Plant not found' });
     }
-    res.status(200).json(plant); // Respond with the found plant
+    res.status(200).json(plant);
   } catch (err) {
-    res.status(500).json({ message: err.message }); // Handle server errors
+    console.error('Error fetching plant:', err);
+    res.status(500).send('Server error');
   }
 });
 
@@ -126,7 +124,8 @@ app.put('/api/plants/:name/water', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5001;
+// Start the server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
