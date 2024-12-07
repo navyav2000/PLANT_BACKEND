@@ -1,14 +1,7 @@
-const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const app = express();
-
-// Middleware
-app.use(cors({
-  origin: 'http://localhost:8080' // Replace with your frontend URL
-}));
-
-app.use(express.json());
+const url = require('url');
+const querystring = require('querystring');
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.net/plantDB?retryWrites=true&w=majority', {
@@ -20,34 +13,13 @@ mongoose.connect('mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.
 
 // Define the schema for the plant
 const plantSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  species: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  lastWatered: {
-    type: Date,
-    default: Date.now
-  },
-  wateringFrequency: {
-    type: Number, // in days
-    required: true
-  },
-  careInstructions: {
-    type: String,
-    required: true,
-    maxlength: 500
-  },
-}, {
-  timestamps: true, // Automatically add createdAt and updatedAt fields
-});
+  name: { type: String, required: true, trim: true },
+  species: { type: String, required: true, trim: true },
+  lastWatered: { type: Date, default: Date.now },
+  wateringFrequency: { type: Number, required: true },
+  careInstructions: { type: String, required: true, maxlength: 500 },
+}, { timestamps: true });
 
-// Export the schema as a model
 const Plant = mongoose.model('Plant', plantSchema);
 
 // Random plants data
@@ -62,12 +34,12 @@ const plants = [
   { name: 'Cactus', species: 'Cactaceae', wateringFrequency: 2, careInstructions: 'Water every 2 days. Keep in a well-lit area.' },
 ];
 
-// Function to insert plant data into the database
+// Insert plant data into the database if not present
 async function insertPlants() {
   try {
-    const existingPlants = await Plant.countDocuments(); // Check if plants are already in the database
+    const existingPlants = await Plant.countDocuments();
     if (existingPlants === 0) {
-      await Plant.insertMany(plants); // Insert the random plant data if the collection is empty
+      await Plant.insertMany(plants);
       console.log('Plants inserted into the database!');
     } else {
       console.log('Plants already exist in the database!');
@@ -76,56 +48,79 @@ async function insertPlants() {
     console.error('Error inserting plants:', err);
   }
 }
-
-// Call insertPlants function when the server starts
 insertPlants();
 
-// API routes
+// Utility function for sending JSON responses
+function sendJsonResponse(res, statusCode, data) {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
 
-// Get all plants
-app.get('/api/plants', async (req, res) => {
-  try {
-    const plants = await Plant.find(); // Fetch all plants
-    res.status(200).json(plants); // Return all plant data
-  } catch (err) {
-    res.status(500).json({ message: err.message }); // Handle server errors
-  }
-});
+// Create HTTP server
+const server = http.createServer(async (req, res) => {
+  const parsedUrl = url.parse(req.url);
+  const path = parsedUrl.pathname;
+  const query = querystring.parse(parsedUrl.query);
 
-// Get a specific plant by name
-app.get('/api/plants/:name', async (req, res) => {
-  try {
-    const plant = await Plant.findOne({ name: req.params.name });
-    if (!plant) {
-      return res.status(404).json({ message: 'Plant not found' });
+  // Route: Get all plants
+  if (path === '/api/plants' && req.method === 'GET') {
+    try {
+      const plants = await Plant.find();
+      sendJsonResponse(res, 200, plants);
+    } catch (err) {
+      console.error('Error fetching plants:', err);
+      sendJsonResponse(res, 500, { message: 'Internal server error' });
     }
-    res.status(200).json(plant);
-  } catch (err) {
-    console.error('Error fetching plant:', err);
-    res.status(500).send('Server error');
   }
-});
 
-// Update last watered date for a plant
-app.put('/api/plants/:name/water', async (req, res) => {
-  try {
-    const plantName = req.params.name;
-    const plant = await Plant.findOne({ name: plantName });
-    if (!plant) {
-      return res.status(404).json({ message: 'Plant not found' });
+  // Route: Get a specific plant by name
+  else if (path.startsWith('/api/plants/') && req.method === 'GET') {
+    const plantName = decodeURIComponent(path.split('/api/plants/')[1]);
+    try {
+      const plant = await Plant.findOne({ name: plantName });
+      if (!plant) {
+        sendJsonResponse(res, 404, { message: 'Plant not found' });
+      } else {
+        sendJsonResponse(res, 200, plant);
+      }
+    } catch (err) {
+      console.error('Error fetching plant:', err);
+      sendJsonResponse(res, 500, { message: 'Internal server error' });
     }
-    
-    // Update last watered date
-    plant.lastWatered = Date.now();
-    await plant.save(); // Save the updated plant
-    res.status(200).json(plant);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  }
+
+  // Route: Update last watered date for a plant
+  else if (path.startsWith('/api/plants/') && path.endsWith('/water') && req.method === 'PUT') {
+    const plantName = decodeURIComponent(path.split('/api/plants/')[1].split('/water')[0]);
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', async () => {
+      try {
+        const plant = await Plant.findOne({ name: plantName });
+        if (!plant) {
+          sendJsonResponse(res, 404, { message: 'Plant not found' });
+        } else {
+          plant.lastWatered = Date.now();
+          await plant.save();
+          sendJsonResponse(res, 200, plant);
+        }
+      } catch (err) {
+        console.error('Error updating plant:', err);
+        sendJsonResponse(res, 500, { message: 'Internal server error' });
+      }
+    });
+  }
+
+  // Handle 404 for unmatched routes
+  else {
+    sendJsonResponse(res, 404, { message: 'Route not found' });
   }
 });
 
 // Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
