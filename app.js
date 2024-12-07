@@ -58,69 +58,48 @@ function sendJsonResponse(res, statusCode, data) {
 
 // Create HTTP server
 const server = http.createServer(async (req, res) => {
-  const parsedUrl = url.parse(req.url);
-  const path = parsedUrl.pathname;
-  const query = querystring.parse(parsedUrl.query);
+  const parsedUrl = url.parse(req.url, true);
+  const method = req.method;
 
-  // Route: Get all plants
-  if (path === '/api/plants' && req.method === 'GET') {
-    try {
-      const plants = await Plant.find();
-      sendJsonResponse(res, 200, plants);
-    } catch (err) {
-      console.error('Error fetching plants:', err);
-      sendJsonResponse(res, 500, { message: 'Internal server error' });
+  // Handle CORS preflight requests
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+// Get car details by name
+if (method === 'GET' && parsedUrl.pathname.startsWith('/api/plants/')) {
+  const plantName = parsedUrl.pathname.split('/').pop();
+
+  try {
+    const plant = await Plant.findOne({ name: plantName });
+    console.log(plant);
+
+    if (plant) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(plant));
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Plant not found' }));
     }
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: err.message }));
   }
 
-  // Route: Get a specific plant by name
-  else if (path.startsWith('/api/plants/') && req.method === 'GET') {
-    const plantName = decodeURIComponent(path.split('/api/plants/')[1]);
-    try {
-      const plant = await Plant.findOne({ name: plantName });
-      if (!plant) {
-        sendJsonResponse(res, 404, { message: 'Plant not found' });
-      } else {
-        sendJsonResponse(res, 200, plant);
-      }
-    } catch (err) {
-      console.error('Error fetching plant:', err);
-      sendJsonResponse(res, 500, { message: 'Internal server error' });
-    }
-  }
+  return;
+}
 
-  // Route: Update last watered date for a plant
-  else if (path.startsWith('/api/plants/') && path.endsWith('/water') && req.method === 'PUT') {
-    const plantName = decodeURIComponent(path.split('/api/plants/')[1].split('/water')[0]);
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', async () => {
-      try {
-        const plant = await Plant.findOne({ name: plantName });
-        if (!plant) {
-          sendJsonResponse(res, 404, { message: 'Plant not found' });
-        } else {
-          plant.lastWatered = Date.now();
-          await plant.save();
-          sendJsonResponse(res, 200, plant);
-        }
-      } catch (err) {
-        console.error('Error updating plant:', err);
-        sendJsonResponse(res, 500, { message: 'Internal server error' });
-      }
-    });
-  }
-
-  // Handle 404 for unmatched routes
-  else {
-    sendJsonResponse(res, 404, { message: 'Route not found' });
-  }
+// Default route
+res.writeHead(404, { 'Content-Type': 'application/json' });
+res.end(JSON.stringify({ message: 'Route not found' }));
 });
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
