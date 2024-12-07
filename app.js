@@ -18,21 +18,13 @@ const plantSchema = new mongoose.Schema({
   lastWatered: { type: Date, default: Date.now },
   wateringFrequency: { type: Number, required: true },
   careInstructions: { type: String, required: true, maxlength: 500 },
+  soilType: { type: String, required: true }, 
+  sunlightRequirement: { type: String, required: true }, 
 }, { timestamps: true });
 
 const Plant = mongoose.model('Plant', plantSchema);
 
-// Random plants data
-const plants = [
-  { name: 'Pineapple', species: 'Ananas comosus', wateringFrequency: 14, careInstructions: 'Water every 14 days. Keep in direct sunlight.' },
-  { name: 'Strawberry', species: 'Fragaria', wateringFrequency: 3, careInstructions: 'Water every 3 days. Keep in a humid environment.' },
-  { name: 'Sunflower', species: 'Helianthus annuus', wateringFrequency: 10, careInstructions: 'Water every 10 days. Keep in direct sunlight.' },
-  { name: 'Mint', species: 'Mentha', wateringFrequency: 7, careInstructions: 'Water every 7 days. Keep in indirect sunlight.' },
-  { name: 'Marigold', species: 'Tagetes patula', wateringFrequency: 21, careInstructions: 'Water every 21 days. Low light tolerance.' },
-  { name: 'Lilly', species: 'Lilium', wateringFrequency: 5, careInstructions: 'Water every 5 days. Bright, indirect sunlight.' },
-  { name: 'Grapes', species: 'Vitis vinifera', wateringFrequency: 7, careInstructions: 'Water every 7 days. Keep in indirect sunlight.' },
-  { name: 'Cactus', species: 'Cactaceae', wateringFrequency: 2, careInstructions: 'Water every 2 days. Keep in a well-lit area.' },
-];
+
 
 // Insert plant data into the database if not present
 async function insertPlants() {
