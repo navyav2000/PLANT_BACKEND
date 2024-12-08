@@ -1,0 +1,417 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Times New Roman', Times, serif, sans-serif;
+    background-color: rgb(126, 220, 193);
+    padding: 3vh;
+    background: linear-gradient(60deg, #e3dfdb, #e8a969);
+}
+
+/* Header Styling */
+.header-box {
+    background-color: rgb(178, 125, 76);
+    color: black;
+    padding: 2vh 2vw; /* Responsive padding using both vh and vw */
+    border-radius: 1vh;
+    display: grid;
+    grid-template-columns: 20vw auto; /* Two columns: one for heading, the other for buttons */
+    align-items: center; /* Center content vertically */
+}
+
+/* Title Styling */
+.header-title {
+    font-size: 3vh;
+    font-weight: bold;
+    font-style: italic;
+    margin-left: 1vw; /* Adds some space from the left edge */
+    white-space: nowrap; /* Prevents wrapping of the title */
+}
+
+/* Button Group Styling using Grid */
+.header-buttons {
+    display: grid;
+    grid-template-columns: repeat(8, auto); /* 8 buttons in a single row */
+    gap: 1.5vw; /* Space between buttons */
+    justify-content: right; /* Aligns buttons to the right */
+}
+
+.btn {
+    background-color: transparent;
+    font-family: 'Times New Roman', Times, serif;
+    border: none;
+    color: black;
+    font-weight: bold;
+    padding: 0.5vh 1vw; /* Responsive padding */
+    font-size: 2.5vh;
+    border-radius: 2vh;
+    cursor: pointer;
+    font-style: italic;
+    white-space: nowrap; /* Prevents buttons from wrapping */
+}
+
+.btn:hover {
+    background-color: rgb(246, 250, 252);
+}
+
+/* Right Section */
+.right-section {
+    float: right;
+    width: 200px;
+    margin: 20px;
+    text-align: center;
+    padding: 10px;
+    padding-left: 10px;
+}
+
+/* Responsive styling: stack items on smaller screens */
+@media (max-width: 768px) {
+    .header-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Auto-fill columns to fit screen width */
+        gap: 1vw; /* Adjust the gap between buttons for smaller screens */
+        justify-items: center; /* Center align buttons */
+        padding: 1vh 1vw; /* Adjust padding for smaller screens */
+    }
+
+    .btn {
+        font-size: 2vh; /* Reduce button font size for smaller screens */
+        padding: 0.5vh 1vw; /* Adjust padding for buttons on smaller screens */
+    }
+}
+
+
+/* Styling for the profile image */
+.profile-img {
+    /*width: 100%; /* the image takes up the full width of the container */
+    height: auto; 
+    border-radius: 90%; /* Makes the image circular */
+}
+
+/* Styling for the name */
+.name {
+    font-size: 1.2em;
+    margin: 10px 0;
+    padding-left: 30px;
+}
+
+/* Styling for the position */
+.designation {
+    font-size: 19px;
+    margin-left: 33px;
+    color: black /* Makes the text a bit lighter */
+}
+
+/* Hobbies section heading */
+.hobbies h2 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-size: 4vh;
+    font-weight: bold;
+    margin-top: 10vh;
+    margin-bottom: 2vh;
+    padding-left: 2vh;
+    padding-right: 2vh;
+    text-align: center;
+}
+
+/* Unordered list for hobbies */
+.hobbies-list {
+    
+    list-style-type: disc;
+    margin-left: 20px;
+    padding-right: 10px;
+}
+
+/* List items for individual hobbies */
+.hobbies-list li {
+    font-size: 18px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* About Section */
+.about {
+    background-color: rgb(178, 125, 76);
+    color: black;
+    padding: 1vh 1vw;
+    border-radius: 1vh;
+    text-align: justify;
+    margin-top: 3vh;
+    margin-right: 30vh;
+}
+
+.about h2 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 4vh;
+    margin-bottom: 2vh;
+    text-align: justify;
+}
+
+.about p {
+    font-size: 2.5vh;
+    line-height: 1.6;
+}
+
+/* Style the horizontal line */
+.custom-line {
+    border: 0; /* Removes the default border */
+    height: 0.3vh; /* Sets the thickness of the line using vh */
+    background-color: black; /* Line color */
+    margin: 1vh 1vw; /* Adds vertical and horizontal spacing */
+    width: 82vw; /* Adjusts the width of the line using vw */
+}
+
+/* Container for the education section */
+.education {
+    padding: 1vh 1vw;
+    background-color:rgb(178, 125, 76); /* Same color as the About section */
+    border-radius: 1vh; 
+    margin-top: 3vh; 
+    margin-right: 30vh;
+}
+
+/* Heading for the education section */
+h3 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 4vh;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Styling for the education section with grid layout */
+.education-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2vw; /* Gap between the grid items */
+    overflow: hidden;
+    margin-top: 3vh;
+    margin-bottom: 1vh;
+}
+
+/* Individual education items (Masters and Bachelors) */
+.education-item {
+    padding: 1vh 1vw;
+    background-color:rgb(219, 178, 140); /* Same color as the About section */
+    border-radius: 1vh;
+    text-align: justify;
+    margin-top: 1vh;
+}
+
+/* Headings for Masters and Bachelors */
+.education-item h4 {
+    font-size: 3vh;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 1.5vh;
+    text-align: left;
+}
+
+/* Paragraph styling */
+.education-item p {
+    font-size: 2.5vh;
+    line-height: 1.6;
+}
+
+/* Responsive styling: stack items on smaller screens */
+@media (max-width: 768px) {
+    .education-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Experience Section heading */
+.experience h5 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 4vh;
+    font-weight: bold;
+    text-align: left;
+}
+
+.experience{
+    padding: 1vh 1vw;
+    background-color:rgb(178, 125, 76); /* Same color as the About section */
+    border-radius: 1vh; 
+    margin-top: 3vh; 
+    margin-right: 30vh;
+}
+
+/* Styling for the experience section with grid layout */
+.experience-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2vw; /* Gap between the grid items */
+    overflow: hidden;
+    margin-top: 3vh;
+    margin-bottom: 1vh;
+}
+
+/* Individual Experience items (Company 1, 2, and 3) */
+.experience-item {
+    padding: 1vh 1vw;
+    background-color:rgb(219, 178, 140); /* Same color as the About section */
+    border-radius: 1vh;
+    text-align: justify;
+    margin-top: 1vh;
+}
+
+/* Headings for Company 1, 2, and 3 */
+.experience-item h6 {
+    font-size: 3vh;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 1.5vh;
+    text-align: left;
+}
+
+/* Paragraph styling */
+.experience-item p {
+    font-size: 2.5vh;
+    line-height: 1.6;
+}
+
+/* Responsive styling: stack items on smaller screens */
+@media (max-width: 768px) {
+    .experience-section {
+        grid-template-columns: 1fr; /* Stack items on smaller screens */
+    }
+}
+
+/* Skills section */
+.skills {
+    background-color: rgb(178, 125, 76); /* Same background as About section */
+    color: black;
+    padding: 1vh 1vw;
+    border-radius: 1vh;
+    text-align: justify;
+    margin-top: 3vh;
+    margin-bottom: 1vh;
+}
+
+/* Skills section heading */
+.skills h7 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 4vh;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Container for the skills list */
+.skills-list-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 2vw;
+    padding: 1vh 2vw;
+    border-radius: 1vh;
+}
+
+/* Unordered list for skills */
+.skills-list {
+    list-style-type: disc;
+    padding-left: 1vw;
+    margin-top: 3vh;
+}
+
+/* List items for individual skills */
+.skills-list li {
+    font-size: 2.5vh;
+    line-height: 1.6;
+    margin-bottom: 1.5vh;
+}
+
+/* Responsive styling for smaller screens */
+@media (max-width: 768px) {
+    .skills {
+        padding: 1.5vh 1.5vw;
+    }
+
+    .skills h7 {
+        font-size: 3.5vh;
+    }
+
+    .skills-list li {
+        font-size: 2vh;
+    }
+}
+
+/* Style for container */
+.container {
+    background-color: rgb(178, 125, 76); /* Same color as Education section */
+    padding: 1vh 1vw;
+    border-radius: 1vh;
+    display: grid; /* Using grid layout */
+    grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+    gap: 2vw; /* Space between columns */
+    padding: 2vh; /* Padding for container */
+    margin-top: 3vh;
+    margin-bottom: 1vh;
+}
+
+.container h8 {
+    font-style: oblique;
+    text-decoration: underline;
+    font-size: 4vh; /* Font size in viewport width */
+}
+
+/* Column class styles */
+.column {
+    padding: 2vh; /* Padding for each column */
+    padding: 1vh 1vw;
+    background-color:rgb(219, 178, 140); /* Same color as the About section */
+    border-radius: 1vh;
+}
+
+/* Style for lists */
+.column ul {
+    padding: 0; /* No padding */
+    list-style-type: none; /* Remove default list styling */
+}
+
+.column li {
+    padding: 2vh 0; /* Vertical padding for list items */
+    margin-bottom: 1vh; /* Adds spacing between list items */
+    font-size: 2.5vh;
+}
+
+
+/* Footer / Contact Section */
+footer {
+    text-align: center;
+    background-color: rgb(178, 125, 76);
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.gmail-icon{
+    height: 27px;
+    margin: 0 10px;
+}
+
+footer h9 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.contact-links img {
+    width: 30px;
+    margin: 0 10px;
+}
+
+footer a {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+}

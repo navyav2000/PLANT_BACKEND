@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { MongoClient } = require('mongodb');
 const url = require('url');
 
@@ -25,6 +27,19 @@ function sendJsonResponse(res, statusCode, data) {
   res.end(JSON.stringify(data));
 }
 
+// Utility function to serve static files
+function serveStaticFile(res, filePath, contentType) {
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(500);
+      res.end('Error loading the file');
+    } else {
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+    }
+  });
+}
+
 // Create HTTP server
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -41,7 +56,19 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Get all plants data
+  // Serve the index.html file when accessing the root URL
+  if (method === 'GET' && parsedUrl.pathname === '/') {
+    serveStaticFile(res, path.join(__dirname, 'public', 'index.html'), 'text/html');
+    return;
+  }
+
+  // Serve CSS file for styling
+  if (method === 'GET' && parsedUrl.pathname === '/style.css') {
+    serveStaticFile(res, path.join(__dirname, 'public', 'style.css'), 'text/css');
+    return;
+  }
+
+  // Handle the API route for plant data
   if (method === 'GET' && parsedUrl.pathname === '/api') {
     try {
       const db = dbClient.db('plantDB');
@@ -49,14 +76,13 @@ const server = http.createServer(async (req, res) => {
       const plants = await plantsCollection.find({}).toArray();
 
       if (plants.length > 0) {
-        sendJsonResponse(res, 200, plants); // Return all plants
+        sendJsonResponse(res, 200, plants); // Return all plants in JSON format
       } else {
         sendJsonResponse(res, 404, { message: 'No plants found' });
       }
     } catch (err) {
       sendJsonResponse(res, 500, { message: err.message });
     }
-
     return;
   }
 
