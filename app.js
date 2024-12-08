@@ -68,11 +68,34 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Serve images file for styling
-  if (method === 'GET' && parsedUrl.pathname === '/images') {
-    serveStaticFile(res, path.join(__dirname, 'public', 'images'), 'images/');
-    return;
-  }
+  // Serve static image files from the images folder
+if (method === 'GET' && parsedUrl.pathname.startsWith('/images/')) {
+  const imageFileName = parsedUrl.pathname.replace('/images/', '');
+  const imagePath = path.join(__dirname, 'public', 'images', imageFileName);
+
+  fs.readFile(imagePath, (err, content) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Image not found');
+    } else {
+      // Determine content type based on file extension
+      const ext = path.extname(imageFileName).toLowerCase();
+      const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+      };
+
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+    }
+  });
+  return;
+}
+
 
   // Handle the API route for plant data
   if (method === 'GET' && parsedUrl.pathname === '/api') {
