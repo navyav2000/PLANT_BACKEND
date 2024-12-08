@@ -68,6 +68,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Serve CSS file for styling
+  if (method === 'GET' && parsedUrl.pathname === '/images') {
+    serveStaticFile(res, path.join(__dirname, 'public', 'images'), 'images/');
+    return;
+  }
+
   // Handle the API route for plant data
   if (method === 'GET' && parsedUrl.pathname === '/api') {
     try {
