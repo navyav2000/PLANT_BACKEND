@@ -1,37 +1,34 @@
 const http = require('http');
-const mongoose = require('mongoose');
+const { MongoClient, ObjectId } = require('mongodb');
 const url = require('url');
 const querystring = require('querystring');
 
-// MongoDB connection
-mongoose.connect('mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.net/plantDB?retryWrites=true&w=majority', {
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch((err) => {
-  console.error('MongoDB connection error:', err);
-});
+// MongoDB connection URI and client setup
+const uri = 'mongodb+srv://navya2000v:5QYtY04Ch02p73Qb@plant.dexcs.mongodb.net/plantDB?retryWrites=true&w=majority';
+let dbClient;
 
-// Define the schema for the plant
-const plantSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true },
-  species: { type: String, required: true, trim: true },
-  lastWatered: { type: Date, default: Date.now },
-  wateringFrequency: { type: Number, required: true },
-  careInstructions: { type: String, required: true, maxlength: 500 },
-  soilType: { type: String, required: true }, 
-  sunlightRequirement: { type: String, required: true }, 
-}, { timestamps: true });
+// Connect to MongoDB
+async function connectToDb() {
+  try {
+    dbClient = new MongoClient(uri);
+    await dbClient.connect();
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+  }
+}
 
-const Plant = mongoose.model('Plant', plantSchema);
-
-
+connectToDb();
 
 // Insert plant data into the database if not present
 async function insertPlants() {
   try {
-    const existingPlants = await Plant.countDocuments();
+    const db = dbClient.db('plantDB');
+    const plantsCollection = db.collection('plants');
+
+    const existingPlants = await plantsCollection.countDocuments();
     if (existingPlants === 0) {
-      await Plant.insertMany(plants);
+      await plantsCollection.insertMany(plants);
       console.log('Plants inserted into the database!');
     } else {
       console.log('Plants already exist in the database!');
@@ -64,34 +61,42 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-// Get car details by name
-if (method === 'GET' && parsedUrl.pathname.startsWith('/api/plants/')) {
-  const plantName = parsedUrl.pathname.split('/').pop();
+  // Get plant details by name from query parameter
+  if (method === 'GET' && parsedUrl.pathname === '/api') {
+    const query = parsedUrl.query;
+    const plantName = query.name;
 
-  try {
-    const plant = await Plant.findOne({ name: plantName });
-    console.log(plant);
-
-    if (plant) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(plant));
-    } else {
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: 'Plant not found' }));
+    if (!plantName) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Plant name query parameter is required' }));
+      return;
     }
-  } catch (err) {
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: err.message }));
+
+    try {
+      const db = dbClient.db('plantDB');
+      const plantsCollection = db.collection('plants');
+      const plant = await plantsCollection.findOne({ name: plantName });
+
+      if (plant) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(plant));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Plant not found' }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: err.message }));
+    }
+
+    return;
   }
 
-  return;
-}
-
-// Default route
-res.writeHead(404, { 'Content-Type': 'application/json' });
-res.end(JSON.stringify({ message: 'Route not found' }));
+  // Default route
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ message: 'Route not found' }));
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
